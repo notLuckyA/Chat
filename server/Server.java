@@ -10,20 +10,16 @@ public class Server {
             InputStream input = clientSocket.getInputStream();
             BufferedReader br = new BufferedReader((new InputStreamReader(input)));
 
-            System.out.print("Введите имя\n");
+            String nick = br.readLine();
+            System.out.println("--> " + nick + " вошёл в чат");
 
-            String nick = null;
+
             String message;
             while ((message = br.readLine()) != null){
-                if (nick == null){
-                    nick = message;
-                    System.out.print("--> " + nick + " вошёл в чат\n");
-                } else {
-                    System.out.println(nick + ": " +message);
-                }
                 if (message.equals("\n")){
                     break;
                 }
+                System.out.println(nick + ": " + message);
             }
             System.out.print("<-- " + nick + " вышел из чата");
             output.close();
