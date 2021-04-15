@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Server {
 
@@ -16,17 +18,22 @@ public class Server {
                 InputStream input = clientSocket.getInputStream();
                 BufferedReader br = new BufferedReader((new InputStreamReader(input)));
 
+                Date dt = new Date();
+                SimpleDateFormat formatForDateNow = new SimpleDateFormat("hh:mm:ss");
+
                 String nick = br.readLine();
-                System.out.println("--> " + nick + " вошёл в чат");
-                // проверка Git в IDE
+                System.out.println("--> " + formatForDateNow.format(dt) + " " + nick + " вошёл в чат");
                 String message;
                 while ((message = br.readLine()) != null) {
+
+                   dt = new Date();
+
                     if (message.equals("\n")) {
                         break;
                     }
-                    System.out.println(nick + ": " + message);
+                    System.out.println(formatForDateNow.format(dt) + "<" + nick + ">: " + message);
                 }
-                System.out.print("<-- " + nick + " вышел из чата");
+                System.out.print("<-- " + formatForDateNow.format(dt) + " " + nick + " вышел из чата");
                 output.close();
                 input.close();
             } catch (IOException e) {

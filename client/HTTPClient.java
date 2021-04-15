@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -18,10 +17,8 @@ public class HTTPClient {
         Scanner scanner = new Scanner(System.in);
         String nick = scanner.nextLine();
 
-
         String message;
         message = nick + "\n";
-        //System.out.print(nick + "\n");
         output.write(message.getBytes());
 
         while ((message = br.readLine()) != null) {
@@ -34,6 +31,5 @@ public class HTTPClient {
             output.write(message.getBytes());
         }
         output.close();
-
     }
 }
