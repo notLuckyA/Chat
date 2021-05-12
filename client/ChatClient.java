@@ -1,27 +1,39 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.Socket;
+import javax.xml.namespace.QName;
+import java.net.*;
+import java.io.*;
 import java.util.Scanner;
+import java.util.concurrent.Semaphore;
 
-public class HTTPClient {
-    static String name;
+public class ChatClient {
+
+   static String name;
+    String color;
     Socket socket;
     BufferedReader bufferedReader;
     OutputStream outputStream;
     boolean alive = true;
 
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_RESET = "\u001B[0m";
+    String ANSI_PINK = "\u001b[";
 
-    public HTTPClient(String name) {
-        this.name = name;
+    public ChatClient(String name) {
+        this.color = generateColor();
+        this.name = generateColor() + name + "\u001B[0m";
+    }
+
+    public String generateColor() {
+        int color;
+        if (Math.random() * 10 > 5) {
+            color = (int) (Math.random() * 8 + 90);
+        } else {
+            color = (int) (Math.random() * 8 + 30);
+        }
+
+        return ANSI_PINK + color + "m";
     }
 
     public static void main(String[] args) {
 
-        HTTPClient client = new HTTPClient(name);
+        ChatClient client = new ChatClient(name);
         client.start();
     }
 
@@ -32,29 +44,44 @@ public class HTTPClient {
         t.start();
 
         try {
-            System.out.print("NAME: ");
             Scanner scanner = new Scanner(System.in);
             name = scanner.nextLine();
-            // outputStream.write(message.getBytes());
-
-            String message = ANSI_PURPLE + name + ANSI_RESET + "\n";
+            String message = name + "\n";
             outputStream.write(message.getBytes());
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
             while ((message = br.readLine()) != null) {
+                printMessage("> ");
                 if (message.length() == 0) {
-                    outputStream.write("\n".getBytes());
+                    continue;
+                } else if (message.equals("/quit")) {
+                    message = message + "\n";
+                    outputStream.write(message.getBytes());
                     break;
+                } else {
+                    message = message + "\n";
+                    outputStream.write(message.getBytes());
                 }
-                message = message + "\n";
-                outputStream.write(message.getBytes());
             }
             alive = false;
 
             outputStream.close();
-            System.out.println("Вы вышли из чата");
+            printMessage("Вы вышли из чата\n");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+    }
+
+    // private static Semaphore sem = new Semaphore(1);
+    private static synchronized void printMessage(String message) {
+        // try {
+        //     sem.acquire();
+        System.out.print(message);
+        //     sem.release();
+        // } catch(Exception e) {
+
+        // }
     }
 
     private void setUpNetworking() {
@@ -63,23 +90,24 @@ public class HTTPClient {
             InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
             bufferedReader = new BufferedReader(inputStreamReader);
             outputStream = socket.getOutputStream();
-            System.out.println("Connect");
+            printMessage("подключение установлено\n");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
     public class InReader implements Runnable {
+
         public void run() {
             String message;
-
             try {
                 while ((message = bufferedReader.readLine()) != null && alive == true) {
-                    System.out.println(message);
+                    printMessage(message + "\n> ");
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
     }
+
 }
